@@ -1,0 +1,101 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<Import Condition="'$(Configuration)' == 'Release'" Project="BuildAddonZipFile.proj" />
+	
+	<PropertyGroup>
+		<TargetFrameworks>net6.0;net7.0</TargetFrameworks>
+		<ImplicitUsings>disable</ImplicitUsings>
+		<OutputType>Library</OutputType>
+		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+		<FileVersion>3.0.0.11</FileVersion>
+		<InformationalVersion>Optimizely CMS 12</InformationalVersion>
+		<Title>Google Maps Editor for Optimizely</Title>
+		<Description>Editor for setting coordinates using Google Maps.</Description>
+		<GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+	</PropertyGroup>
+
+	<!-- Properties affecting NuGet package, i.e. equivalents of .nuspec properties -->
+	<PropertyGroup>
+		<Product>$(Title)</Product>
+		<PackageDescription>$(Description)</PackageDescription>
+		<Version>$(FileVersion)</Version>
+		<PackageVersion>$(FileVersion)-prelease</PackageVersion><!-- Append "-name-of-pre-release" to build prerelease version of packages, e.g. "$(FileVersion)-newfeature" -->
+		<PackageId>$(AssemblyName)</PackageId>
+		<Authors>ted&amp;gustaf</Authors>
+		<Copyright>© Ted &amp; Gustaf AB. All rights reserved.</Copyright>
+		<PackageProjectUrl>https://github.com/tedgustaf/optimizely-google-maps-editor</PackageProjectUrl>
+		<!-- Embedded icon doesn't yet work in some NuGet feeds, including the Optimizely feed -->
+		<PackageIcon>nuget-icon.png</PackageIcon>
+		<PackageIconUrl>https://github.com/tedgustaf/optimizely-google-maps-editor/blob/main/nuget-icon.png?raw=true</PackageIconUrl>
+		<PackageLicenseFile>LICENSE</PackageLicenseFile>
+		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+		<PackageReadmeFile>readme.md</PackageReadmeFile>
+		<PackageReleaseNotes>Improvements to features, performance, compatibility, and/or stability.</PackageReleaseNotes>
+		<PackageTags>Optimizely</PackageTags>
+	</PropertyGroup>
+
+	<!-- Build NuGet package for release builds -->
+	<PropertyGroup Condition="'$(Configuration)' == 'Release'">
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<PackageOutputPath>bin\Release</PackageOutputPath>
+	</PropertyGroup>
+	
+	<!-- Delete existing NuGet package files -->
+	<Target Name="DeleteDebugSymbolFile" BeforeTargets="DispatchToInnerBuilds" Condition="'$(Configuration)' == 'Release'">
+		<Message Text="Deleting existing NuGet packages..." Importance="high" />
+		<ItemGroup>
+			<NuGetPackageFiles Include="bin/Release/*.nupkg" />
+		</ItemGroup>
+		<Delete Files="@(NuGetPackageFiles)" />
+	</Target>
+
+	<ItemGroup>
+		<None Include="BuildAddonZipFile.proj" />
+		<None Include="ClientResources\googlemaps\Editor.js" />
+		<None Include="ClientResources\googlemaps\nls\Labels.js" />
+		<None Include="ClientResources\googlemaps\nls\sv\Labels.js" />
+		<None Include="ClientResources\googlemaps\WidgetTemplate.css" />
+		<None Include="ClientResources\googlemaps\WidgetTemplate.html" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="EPiServer.CMS.UI.Core" Version="[12.10.0,13)" />
+		<PackageReference Include="EPiServer.Framework" Version="[12.8.0,13)" />
+	</ItemGroup>
+
+	<!-- Include the icon, license, readme files, and build targets in the NuGet package -->
+	<ItemGroup>
+		<None Include="..\nuget-icon.png">
+			<Visible>False</Visible>
+			<Pack>True</Pack>
+			<PackagePath></PackagePath>
+		</None>
+		<None Include="..\LICENSE">
+			<Pack>True</Pack>
+			<PackagePath></PackagePath>
+		</None>
+		<None Include="readme.md">
+			<Pack>True</Pack>
+			<PackagePath></PackagePath>
+		</None>
+		<None Include="readme.txt">
+			<Pack>True</Pack>
+			<PackagePath></PackagePath>
+		</None>
+		<None Include="GoogleMapsEditor.targets">
+			<Pack>True</Pack>
+			<PackagePath>build\net6.0</PackagePath>
+		</None>
+		<None Include="GoogleMapsEditor.targets">
+			<Pack>True</Pack>
+			<PackagePath>build\net7.0</PackagePath>
+		</None>
+	</ItemGroup>
+	
+	<ItemGroup>
+		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+			<_Parameter1>Testsite</_Parameter1>
+		</AssemblyAttribute>
+	</ItemGroup>
+	
+</Project>

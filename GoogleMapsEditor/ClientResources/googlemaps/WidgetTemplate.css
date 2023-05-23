@@ -1,0 +1,10 @@
+﻿.google-maps-editor-map-canvas {width: 100%; height: 240px; margin: 2px 0 5px 0}
+.google-maps-editor-tools { position: relative; width: 100%; max-width: 632px; }
+.google-maps-editor-tools a { display: block; position: absolute; right: 0; top: 9.5px; right: 7px }
+.google-maps-editor-tools a.google-maps-editor-map-clear { right: 34px; top: 13.5px; transform: scale(120%) }
+
+/* On-page edit popup */
+.dijitDialogPaneContentArea .google-maps-editor { width: 400px}
+.dijitDialogPaneContentArea .google-maps-editor .dijitTextBox { width: 100% }
+.dijitDialogPaneContentArea .google-maps-editor-tools a.google-maps-editor-map-help { top: 5px; }
+.dijitDialogPaneContentArea .google-maps-editor-tools a.google-maps-editor-map-clear { top: 9.5px }

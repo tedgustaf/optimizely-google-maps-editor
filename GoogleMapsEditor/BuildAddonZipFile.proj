@@ -1,0 +1,86 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+
+	<!-- Variables used in the MSBuild scripts -->
+	<PropertyGroup>
+		<PluginName>GoogleMapsEditor</PluginName>
+		<SolutionDir Condition="$(SolutionDir) == ''">$(MSBuildProjectDirectory)..\</SolutionDir>
+		<TmpOutDir>$(ProjectDir)bin\addon</TmpOutDir>
+		<BinDir>$(ProjectDir)bin</BinDir>
+		<ObjDir>$(ProjectDir)obj</ObjDir>
+	</PropertyGroup>
+	
+	<!-- Creates a ZIP file containing a specified set of files -->
+	<UsingTask TaskName="ZipDirectory" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
+		<ParameterGroup>
+			<InputPath ParameterType="System.String" Required="true" />
+			<OutputFileName ParameterType="System.String" Required="true" />
+			<OverwriteExistingFile ParameterType="System.Boolean" Required="false" />
+		</ParameterGroup>
+		<Task>
+			<Reference Include="System.IO.Compression.FileSystem" />
+			<Using Namespace="System.IO" />
+			<Using Namespace="System.IO.Compression" />
+			<Code Type="Fragment" Language="cs">
+				<![CDATA[        
+          if(this.OverwriteExistingFile) {
+            File.Delete(this.OutputFileName);
+          }
+          ZipFile.CreateFromDirectory(this.InputPath, this.OutputFileName);
+        ]]>
+			</Code>
+		</Task>
+	</UsingTask>
+
+	<Target Name="Clean" AfterTargets="AfterClean">
+		<Message Text="Cleaning project..." Importance="high" />
+		<RemoveDir Directories="$(TmpOutDir)" />
+		<RemoveDir Directories="$(BinDir);$(ObjDir)"/>
+	</Target>
+
+	<!-- Include ZIP file, target (for copying ZIP to modules folder), and readme in package -->
+	<ItemGroup>
+		<None Include="$(SolutionDir)\tmp\$(PluginName).zip">
+			<Pack>True</Pack>
+			<PackagePath>contentFiles\any\any\modules\_protected\GoogleMapsEditor</PackagePath>
+			<Visible>False</Visible>
+			<PackageCopyToOutput>true</PackageCopyToOutput>
+		</None>
+	</ItemGroup>
+
+	<!-- Compiles files to include in release version of NuGet package, where add-on is packaged as a ZIP file -->
+	<!-- Run only once per build regardless of number of target frameworks -->
+	<Target Name="CompileReleaseAddonContent" BeforeTargets="DispatchToInnerBuilds">
+
+		<Message Text="Compiling content for add-on zip file..." Importance="high" />
+
+		<!-- Delete old folders-->
+		<RemoveDir Directories="$(TmpOutDir)\content" />
+		<RemoveDir Directories="$(BinDir)\dist\ClientResources" />
+		
+		<!-- Create the Versioned out dir for the client resources-->
+		<MakeDir Directories="$(TmpOutDir)\content\$(FileVersion)" />
+
+		<!-- Copy files that should be included in the Zip file -->
+		<ItemGroup>
+			<AddOnClientResources Include="$(ProjectDir)ClientResources\googlemaps\**\*.*" />
+		</ItemGroup>
+
+		<Copy SourceFiles="$(ProjectDir)module.config" DestinationFolder="$(TmpOutDir)\content" />
+		<Copy SourceFiles="@(AddOnClientResources)" DestinationFolder="$(TmpOutDir)\content\$(FileVersion)\ClientResources\googlemaps\%(RecursiveDir)"/>
+
+		<!-- Update the module config with the version information -->
+		<XmlPoke XmlInputPath="$(TmpOutDir)\content\module.config" Query="/module/@clientResourceRelativePath" Value="$(FileVersion)" />
+
+		<!-- Create the Zip file -->
+		<Message Text="Creating add-on ZIP file..." Importance="high" />
+		
+		<MakeDir Directories="$(SolutionDir)\tmp" />
+		
+		<ZipDirectory InputPath="$(TmpOutDir)\content" 
+					  OutputFileName="$(SolutionDir)\tmp\$(PluginName).zip" 
+					  OverwriteExistingFile="true" />
+
+	</Target>
+
+</Project>

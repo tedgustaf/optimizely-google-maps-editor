@@ -1,0 +1,31 @@
+﻿@page
+@using EPiServer.Web.Mvc.Html;
+@using Testsite;
+@model SamplePageTypeModel
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>Google Maps Editor</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@@picocss/pico@1/css/pico.min.css">
+</head>
+<body>
+    <main class="container">
+        <h1>Google Maps Editor tests</h1>
+
+        <section>
+            <h2>String coordinates:</h2>
+            <pre @Html.EditAttributes(x => x.CurrentContent.StringCoordinates)><code>@Model.CurrentContent.StringCoordinates</code></pre>
+        </section>
+
+        <section>
+            <h2>Block coordinates:</h2>
+            <pre @Html.EditAttributes(x => x.CurrentContent.BlockCoordinates)><code>Latitude:  @Model.CurrentContent.BlockCoordinates?.Latitude
+Longitude: @Model.CurrentContent.BlockCoordinates?.Longitude</code></pre>
+        </section>
+    </main>
+</body>
+</html>
+
+@Html.FullRefreshPropertiesMetaData(new [] { "StringCoordinates", "BlockCoordinates", "MoreStringCoordinates" })
