@@ -38,6 +38,8 @@ function (
         defaultZoom: null, // Default zoom level, value between 1 and 20
         defaultCoordinates: null, // Coordinates to center the map on when property value is not set
 
+        value: null,
+
         // The Google Maps object of this widget instance
         _map: null,
 

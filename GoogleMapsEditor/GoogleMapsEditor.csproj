@@ -3,15 +3,16 @@
 	<Import Condition="'$(Configuration)' == 'Release'" Project="BuildAddonZipFile.proj" />
 	
 	<PropertyGroup>
-		<TargetFrameworks>net6.0;net7.0</TargetFrameworks>
+		<TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
 		<ImplicitUsings>disable</ImplicitUsings>
 		<OutputType>Library</OutputType>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-		<FileVersion>4.0.0.0</FileVersion>
+		<FileVersion>4.0.0.2</FileVersion>
 		<InformationalVersion>Optimizely CMS 12</InformationalVersion>
 		<Title>Google Maps Editor for Optimizely</Title>
 		<Description>Editor for setting coordinates using Google Maps.</Description>
 		<GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+		<Nullable>enable</Nullable>
 	</PropertyGroup>
 
 	<!-- Properties affecting NuGet package, i.e. equivalents of .nuspec properties -->
@@ -19,7 +20,7 @@
 		<Product>$(Title)</Product>
 		<PackageDescription>$(Description)</PackageDescription>
 		<Version>$(FileVersion)</Version>
-		<PackageVersion>$(FileVersion)</PackageVersion><!-- Append "-name-of-pre-release" to build prerelease version of packages, e.g. "$(FileVersion)-newfeature" -->
+		<PackageVersion>$(FileVersion)-preview</PackageVersion><!-- Append "-name-of-pre-release" to build prerelease version of packages, e.g. "$(FileVersion)-newfeature" -->
 		<PackageId>$(AssemblyName)</PackageId>
 		<Authors>ted&amp;gustaf</Authors>
 		<Copyright>© Ted &amp; Gustaf AB. All rights reserved.</Copyright>
@@ -30,7 +31,7 @@
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
 		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
 		<PackageReadmeFile>readme.md</PackageReadmeFile>
-		<PackageReleaseNotes>Improvements to features, performance, compatibility, and/or stability.</PackageReleaseNotes>
+		<PackageReleaseNotes>Fixed bug where marker would not be displayed for block instances inside IList&lt;TBlock&gt; properties.</PackageReleaseNotes>
 		<PackageTags>Optimizely</PackageTags>
 	</PropertyGroup>
 
@@ -89,6 +90,10 @@
 		<None Include="GoogleMapsEditor.targets">
 			<Pack>True</Pack>
 			<PackagePath>build\net7.0</PackagePath>
+		</None>
+		<None Include="GoogleMapsEditor.targets">
+			<Pack>True</Pack>
+			<PackagePath>build\net8.0</PackagePath>
 		</None>
 	</ItemGroup>
 	
