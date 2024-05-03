@@ -52,7 +52,6 @@
 
 	<ItemGroup>
 		<None Include="BuildAddonZipFile.proj" />
-		<None Include="ClientResources\googlemaps\Editor.js" />
 		<None Include="ClientResources\googlemaps\nls\Labels.js" />
 		<None Include="ClientResources\googlemaps\nls\sv\Labels.js" />
 		<None Include="ClientResources\googlemaps\WidgetTemplate.css" />
