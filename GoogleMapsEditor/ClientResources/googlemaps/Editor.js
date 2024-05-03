@@ -1,44 +1,32 @@
 ﻿define([
-    "dojo/on", // To connect events
+    "dojo/on",
     "dojo/_base/declare", // Used to declare the actual widget
-    "dojo/_base/config", // Used to check if client code debugging is enabled
-
     "dijit/_WidgetBase", // Base class for all widgets
     "dijit/_TemplatedMixin", // Widgets will be based on an external template (string literal, external file, or URL request)
     "dijit/_WidgetsInTemplateMixin", // The widget will in itself contain additional widgets
-
-    "epi/shell/widget/_ValueRequiredMixin", // In order to check if the property is in a readonly state
+    "dijit/form/TextBox", // Base class for all widgets
     "epi/shell/widget/dialog/LightWeight", // Used to display the help message
-
     "dojo/i18n!./nls/Labels", // Localization files containing translations
-
+    "dojo/text!./WidgetTemplate.html",
     'xstyle/css!./WidgetTemplate.css' // CSS to load when widget is loaded
 ],
 function (
     on,
     declare,
-    config,
-
     _WidgetBase,
     _TemplatedMixin,
     _WidgetsInTemplateMixin,
-
-    _ValueRequiredMixin,
+    TextBox,
     LightWeight,
-
     Labels,
+    template
 ) {
-    return declare([_WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, _ValueRequiredMixin], {
-
-        // Load HTML template from the same location as the widget
-        templateString: dojo.cache("googlemapseditor", "WidgetTemplate.html"),
+    return declare([TextBox, _WidgetsInTemplateMixin], {
 
         // Property settings (set by editor descriptor and passed through constructor)
         apiKey: null, // API key valid for Google Maps JavaScript API and Places API
         defaultZoom: null, // Default zoom level, value between 1 and 20
         defaultCoordinates: null, // Coordinates to center the map on when property value is not set
-
-        value: null,
 
         // The Google Maps object of this widget instance
         _map: null,
@@ -52,9 +40,99 @@ function (
         // Help dialog displayed when clicking the question mark icon
         _helpDialog: null,
 
+        templateString: template,
+
+        _setValueAttr: function (value, /*Boolean?*/ priorityChange, /*String?*/ formattedValue) {
+            /*this.inherited(arguments);*/
+
+            console.log("yyy setValueAttr", value);
+
+            //this.log(`Value set for property '${this.label}'`, {
+            //    this: this,
+            //    value: value
+            //});
+
+            if (value === null && this.value === null) {
+
+                // this.log("Value has not changed");
+
+                return;
+            }
+
+            let isStringProperty = !this._isComplexType();
+
+            console.log("yyy isStringProperty", isStringProperty);
+
+            // Skip if the new property value is identical to the current one
+            if ((value === null && this.value === null) ||
+                (isStringProperty && value === this.value) ||
+                (!isStringProperty && value && this.value && value["longitude"] === this.value["longitude"] && value["latitude"] === this.value["latitude"])) {
+
+                //this.log("Value has not changed");
+
+                console.log("yyy value not changed");
+
+                return;
+            }
+
+            // Update the widget (i.e. property) value
+            this._set("value", value);
+
+            console.log("yyy hasCoordinates after setting value", this.hasCoordinates());
+
+            const refreshValue = function () {
+
+                console.log("yyy refreshValue()");
+
+                // If the value set is empty then clear the coordinates
+                if (!this.hasCoordinates()) {
+                    this.clearCoordinates();
+
+                    // Set map location to default coordinates
+                    location = new google.maps.LatLng(this.defaultCoordinates.latitude, this.defaultCoordinates.longitude);
+
+                    this.setMapLocation(location, null, true, true);
+
+                    return;
+                }
+
+                let location, latitude, longitude;
+
+                if (this._isComplexType()) {
+                    latitude = value.latitude;
+                    longitude = value.longitude;
+
+                } else {
+                    const coordinates = value.split(",");
+                    latitude = parseFloat(coordinates[0]);
+                    longitude = parseFloat(coordinates[1]);
+                }
+
+                location = new google.maps.LatLng(latitude, longitude);
+
+                this.setMapLocation(location, null, true);
+            }.bind(this);
+
+            // Ensure Google Maps is loaded
+            if (window.hasOwnProperty('google')) {
+                //this.log("Google Maps already loaded", window.google);
+
+                refreshValue();
+            }
+            else {
+                const signal = on(document, "scriptLoaded", function () {
+                    refreshValue();
+
+                    signal.remove();
+                }.bind(this));
+
+                this.own(signal);
+            }
+        },
+
         // Logs a message to console if in UI debug mode
-        log: function (message, data) { 
-            if (!config.isDebug) {
+        log: function (message, data) {
+            if (!window.location.hostname === "localhost" && !window.location.hostname.endsWith(".local")) {
                 return;
             }
 
@@ -86,7 +164,7 @@ function (
                 window.googleMapsEditor.scriptLoadedEvent = new Event("googleMapsScriptLoaded");
             }
 
-            var that = this; // Use selfie to reduce number of scope binds
+            const that = this; // Use selfie to reduce number of scope binds
 
             // Display help when help icon is clicked
             on(this.helpIcon, "click", function (e) {
@@ -124,11 +202,15 @@ function (
         // Dojo event triggered after 'postCreate', for example when JS resizing needs to be done
         startup: function () {
 
+            this.inherited(arguments);
+
             if (!this.apiKey) {
                 console.warn("[GoogleMapsEditor] Google Maps API key not set, ensure custom editor setting 'apiKey' is set through editor descriptor");
             }
 
-            var signal = on(document, "googleMapsScriptLoaded", function (e) {
+            const signal = on(document, "googleMapsScriptLoaded", function (e) {
+
+                console.log("yyy googleMapsScriptLoaded event fired");
 
                 this.initializeMap();
 
@@ -141,12 +223,16 @@ function (
             // Callback for Google Maps script, specified through script URL
             if (!window.googleMapsScriptCallback) {
 
-                this.log("Adding Google Maps script callback function...");
+                console.log("yyy Adding Google Maps script callback function");
+
+                //this.log("Adding Google Maps script callback function...");
 
                 window.googleMapsScriptCallback = function () {
-                    this.log("Google Maps loaded", {
-                        google: google
-                    });
+                    //this.log("Google Maps loaded", {
+                    //    google: google
+                    //});
+
+                    console.log("yyy Google Maps loaded");
 
                     document.dispatchEvent(googleMapsEditor.scriptLoadedEvent);
 
@@ -156,23 +242,37 @@ function (
             // Add Google Maps script unless already loaded
             const googleMapsScriptElementId = "googleMapsEditor-script";
 
-            var scriptTagAlreadyAdded = !!document.getElementById(googleMapsScriptElementId);
+            console.log("yyy try to get element with ID", googleMapsScriptElementId);
+
+            const scriptTagAlreadyAdded = !!document.getElementById(googleMapsScriptElementId);
 
             if (!scriptTagAlreadyAdded) {
-                const scriptUrl = `https://maps.googleapis.com/maps/api/js?key=${this.apiKey}&libraries=places&callback=googleMapsScriptCallback`;
+                console.log("yyy script tag not added, adding it");
 
-                this.log("Loading Google Maps script...", scriptUrl);
+                const scriptUrl = `https://maps.googleapis.com/maps/api/js?key=${this.apiKey}&loading=async&libraries=places&callback=googleMapsScriptCallback`;
 
-                var tag = document.createElement('script');
+                //this.log("Loading Google Maps script...", scriptUrl);
+                const firstScriptTag = document.getElementsByTagName("script")[0];
+                const tag = document.createElement("script");
                 tag.id = googleMapsScriptElementId,
                 tag.src = scriptUrl;
                 tag.defer = true;
-                var firstScriptTag = document.getElementsByTagName('script')[0];
+                
                 firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+                console.log("yyy added maps script");
             }
 
+            console.log("script tag added, if applicable", {
+                scriptTagAlreadyAdded: scriptTagAlreadyAdded,
+                googleMapsEditor: window.googleMapsEditor,
+                map: this._map
+            });
+
             if (scriptTagAlreadyAdded && window.googleMapsEditor && !this._map) { // Already loaded, for example when widget is re-created during on-page editing
-                this.initializeMap();
+                console.log("re-initializing map using existing script tag");
+
+                //this.initializeMap();
             }
         },
 
@@ -180,7 +280,7 @@ function (
         destroy: function () {
             this.inherited(arguments); // Important to ensure inherited widgets are destroyed properly, failure to do this risks memory leaks
 
-            this.log("Cleaning up map...");
+            //this.log("Cleaning up map...");
 
             // Clean up Google Maps (as much as possible, but there is a known issue with Google Maps: https://code.google.com/p/gmaps-api-issues/issues/detail?id=3803)
             if (this._marker) {
@@ -232,7 +332,7 @@ function (
         // Determine if the property is complex type, i.e. local block with separate properties for longitude and latitude, as opposed to a simple string property
         _isComplexType: function (value) {
 
-            var valueToCheck = value;
+            let valueToCheck = value;
 
             if (!valueToCheck) {
                 valueToCheck = this.value;
@@ -256,14 +356,18 @@ function (
         // Setter for value property (invoked by the CMS on load)
         _setValueAttr: function (value) {
 
-            this.log(`Value set for property '${this.label}'`, {
-                this: this,
-                value: value
-            });
+            console.log("yyy setValueAttr", value);
+
+            this.inherited(arguments);
+
+            //this.log(`Value set for property '${this.label}'`, {
+            //    this: this,
+            //    value: value
+            //});
 
             if (value === null && this.value === null) {
 
-                this.log("Value has not changed");
+                //this.log("Value has not changed");
 
                 return;
             }
@@ -275,7 +379,7 @@ function (
                 (isStringProperty && value === this.value) ||
                 (!isStringProperty && value && this.value && value["longitude"] === this.value["longitude"] && value["latitude"] === this.value["latitude"])) {
 
-                this.log("Value has not changed");
+                //this.log("Value has not changed");
 
                 return;
             }
@@ -283,7 +387,11 @@ function (
             // Update the widget (i.e. property) value
             this._set("value", value);
 
-            var refreshValue = function () {
+            const refreshValue = function () {
+
+                console.log("yyy refreshValue", {
+                    hasCoordinates: this.hasCoordinates()
+                });
 
                 // If the value set is empty then clear the coordinates
                 if (!this.hasCoordinates()) {
@@ -297,16 +405,14 @@ function (
                     return;
                 }
 
-                var location;
-
-                var latitude, longitude;
+                let location, latitude, longitude;
 
                 if (this._isComplexType()) {
                     latitude = value.latitude;
                     longitude = value.longitude;
                     
                 } else {
-                    var coordinates = value.split(",");
+                    const coordinates = value.split(",");
                     latitude = parseFloat(coordinates[0]);
                     longitude = parseFloat(coordinates[1]);
                 }
@@ -317,13 +423,20 @@ function (
             }.bind(this);
 
             // Ensure Google Maps is loaded
-            if (window.hasOwnProperty('google')) {
-                this.log("Google Maps already loaded", window.google);
+            console.log("yyy checking if google is loaded", {
+                google: window.google,
+                hasOwnProperty: window.hasOwnProperty("google")
+            });
+
+            if (window.hasOwnProperty("google")) {
+                //this.log("Google Maps already loaded", window.google);
 
                 refreshValue();
             }
             else {
-                var signal = on(document, "scriptLoaded", function () {
+                const signal = on(document, "scriptLoaded", function () {
+                    console.log("yyy scriptLoaded event fired");
+
                     refreshValue();
 
                     signal.remove();
@@ -340,7 +453,7 @@ function (
                 return;
             }
 
-            this.log("Coordinates changed", location);
+            //this.log("Coordinates changed", location);
 
             const longitude = location.lng(),
                   latitude = location.lat();
@@ -350,7 +463,7 @@ function (
             }
 
             // Get the new value in the correct format
-            var value;
+            let value;
             if (this._isComplexType()) {
                 value = {
                     "latitude" : parseFloat(latitude),
@@ -369,7 +482,7 @@ function (
         // Clears the coordinates, i.e. the property value (the clear button's click event is wired up through a 'data-dojo-attach-event' attribute in the HTML template)
         clearCoordinates: function () {
 
-            this.log("Clearing coordinates...");
+            //this.log("Clearing coordinates...");
 
             // Clear search box
             this.searchTextbox.set("value", '');
@@ -389,56 +502,62 @@ function (
         // Setup the Google Maps canvas
         initializeMap: function () {
 
-            this.log(`Initializing map for property '${this.name}'...`);
+            console.log("yyy initializeMap", this);
 
-            var defaultCoordinates = new google.maps.LatLng(this.defaultCoordinates.latitude, this.defaultCoordinates.longitude);
+            //this.log(`Initializing map for property '${this.name}'...`);
+
+            let mapCoordinates = new google.maps.LatLng(this.defaultCoordinates.latitude, this.defaultCoordinates.longitude);
 
             // Center on current coordinates (i.e. property value), or a default location if no coordinates are set
             if (this.hasCoordinates()) {
 
-                var latitude, longitude;
+                let latitude, longitude;
 
                 if (this._isComplexType()) {
                     latitude = this.value.latitude;
                     longitude = this.value.longitude;
 
                 } else {
-                    var coordinates = this.value.split(",");
+                    const coordinates = this.value.split(",");
                     latitude = parseFloat(coordinates[0]);
                     longitude = parseFloat(coordinates[1]);
                 }
 
-                this.log("Initializing with saved coordinates", this.value);
+                //this.log("Initializing with saved coordinates", this.value);
 
-                defaultCoordinates = new google.maps.LatLng(latitude, longitude);
+                mapCoordinates = new google.maps.LatLng(latitude, longitude);
             }
             else {
-                this.log("Initializing with default coordinates", this.defaultCoordinates);
+                //this.log("Initializing with default coordinates", this.defaultCoordinates);
             }
 
             // Render the map, but disable interaction if property is readonly
-            var mapOptions = {
+            const mapOptions = {
                 zoom: parseInt(this.defaultZoom),
                 disableDefaultUI: true,
-                center: defaultCoordinates,
+                center: mapCoordinates,
                 disableDoubleClickZoom: this.readOnly,
                 scrollwheel: !this.readOnly,
                 draggable: !this.readOnly
             };
 
             // Load the map
+            console.log("yyy _map before", this._map);
+
             this._map = new google.maps.Map(this.canvas, mapOptions);
+
+            console.log("yyy _map after", this._map);
 
             // Display grayscale map if property is readonly
             if (this.readOnly) {
 
-                var grayStyle = [{
+                const grayStyle = [{
                     featureType: "all",
                     elementType: "all",
                     stylers: [{ saturation: -100 }]
                 }];
 
-                var mapType = new google.maps.StyledMapType(grayStyle, { name: "Grayscale" });
+                const mapType = new google.maps.StyledMapType(grayStyle, { name: "Grayscale" });
 
                 this._map.mapTypes.set('disabled', mapType);
 
@@ -446,6 +565,7 @@ function (
             }
 
             // Add a marker to indicate the current coordinates, if any
+            console.log("yyy hasCoordinates()", this.hasCoordinates());
             if (this.hasCoordinates()) {
                 this._marker = new google.maps.Marker({
                     position: this._map.getCenter(),
@@ -456,7 +576,7 @@ function (
             // Allow user to change coordinates unless property is readonly
             if (!this.readOnly) {
 
-                var that = this;
+                const that = this;
 
                 // Update map marker and coordinate textboxes when map is right-clicked
                 google.maps.event.addListener(this._map, "rightclick", function (event) {
@@ -464,13 +584,14 @@ function (
                 });
 
                 // Add search textbox and when a place is selected, move pin and center map
-                var searchBox = new google.maps.places.SearchBox(this.searchTextbox.textbox);
+                const searchBox = new google.maps.places.SearchBox(this.searchTextbox.textbox);
 
                 // Remove Google Maps Searchbox default placeholder, as it won't recognize the placeholder attribute placed on the Textbox dijit
+                console.log("yyy searchTextbox", this.searchTextbox);
                 this.searchTextbox.textbox.setAttribute('placeholder', '');
 
                 google.maps.event.addListener(searchBox, 'places_changed', function () {
-                    var places = searchBox.getPlaces();
+                    const places = searchBox.getPlaces();
 
                     if (places.length == 0) {
                         return;
@@ -488,17 +609,22 @@ function (
         // Updates map marker location, centers on it (optional), and sets the zoom level (optional)
         setMapLocation: function (/* google.maps.LatLng */ location, zoom, center, skipMarker) {
 
+            console.log("yyy setMapLocation", {
+                location: location,
+                map: this._map
+            });
+
             if (!this._map) {
-                this.log("Re-initializing map...");
+                //this.log("Re-initializing map...");
                 this.initializeMap();
             }
 
-            this.log("Updating map location", {
-                location: location,
-                zoom: zoom,
-                center: center,
-                this: this
-            });
+            //this.log("Updating map location", {
+            //    location: location,
+            //    zoom: zoom,
+            //    center: center,
+            //    this: this
+            //});
 
             // Set the marker's position and coordinate textboxes, unless marker is ignored (for example when setting to default coordiantes)
             if (!skipMarker) {

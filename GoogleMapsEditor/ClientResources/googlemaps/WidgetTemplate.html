@@ -1,4 +1,6 @@
-﻿<div class="google-maps-editor">
+﻿<div class="google-maps-editor" id="widget_${id}" role="presentation">
+
+    <input data-dojo-attach-point="textbox,focusNode" autocomplete="off" ${!nameAttrSetting} type="text" />
 
     <div class="google-maps-editor-tools">
         <input type="text" data-dojo-type="dijit/form/TextBox" data-dojo-attach-point="searchTextbox" placeholder="${_localized.search}" />
