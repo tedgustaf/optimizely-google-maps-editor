@@ -1,6 +1,7 @@
 ﻿define([
     "dojo/on",
     "dojo/_base/declare", // Used to declare the actual widget
+    "dijit/_Widget", // Base class for all widgets
     "dijit/_WidgetBase", // Base class for all widgets
     "dijit/_TemplatedMixin", // Widgets will be based on an external template (string literal, external file, or URL request)
     "dijit/_WidgetsInTemplateMixin", // The widget will in itself contain additional widgets
@@ -13,6 +14,7 @@
 function (
     on,
     declare,
+    _Widget,
     _WidgetBase,
     _TemplatedMixin,
     _WidgetsInTemplateMixin,
@@ -39,6 +41,8 @@ function (
 
         // Help dialog displayed when clicking the question mark icon
         _helpDialog: null,
+
+        value: null, // Without this, the CMS will not assign a value to the widget
 
         templateString: template,
 
@@ -76,7 +80,9 @@ function (
             }
 
             // Update the widget (i.e. property) value
+            console.log("yyy value before", this.value);
             this._set("value", value);
+            console.log("yyy value after", this.value);
 
             console.log("yyy hasCoordinates after setting value", this.hasCoordinates());
 
@@ -263,17 +269,17 @@ function (
                 console.log("yyy added maps script");
             }
 
-            console.log("script tag added, if applicable", {
-                scriptTagAlreadyAdded: scriptTagAlreadyAdded,
-                googleMapsEditor: window.googleMapsEditor,
-                map: this._map
-            });
+            //console.log("script tag added, if applicable", {
+            //    scriptTagAlreadyAdded: scriptTagAlreadyAdded,
+            //    googleMapsEditor: window.googleMapsEditor,
+            //    map: this._map
+            //});
 
-            if (scriptTagAlreadyAdded && window.googleMapsEditor && !this._map) { // Already loaded, for example when widget is re-created during on-page editing
-                console.log("re-initializing map using existing script tag");
+            //if (scriptTagAlreadyAdded && window.googleMapsEditor && !this._map) { // Already loaded, for example when widget is re-created during on-page editing
+            //    console.log("re-initializing map using existing script tag");
 
-                //this.initializeMap();
-            }
+            //    this.initializeMap();
+            //}
         },
 
         // Dojo event triggered when widget is removed
@@ -332,6 +338,8 @@ function (
         // Determine if the property is complex type, i.e. local block with separate properties for longitude and latitude, as opposed to a simple string property
         _isComplexType: function (value) {
 
+            console.log("yyy _isComplexType()");
+
             let valueToCheck = value;
 
             if (!valueToCheck) {
@@ -339,16 +347,21 @@ function (
             }
 
             if (valueToCheck) {
+                console.log("yyy returning", typeof valueToCheck === "object");
                 return typeof valueToCheck === "object";
             }
 
             if (Array.isArray(this.properties)) {
+                console.log("yyy returning", this.properties.length > 0);
                 return this.properties.length > 0;
             }
 
             if (this.metadata && Array.isArray(this.metadata.properties)) {
+                console.log("yyy returning", this.metadata.properties.length > 0);
                 return this.metadata.properties.length > 0;
             }
+
+            console.log("not complex type");
 
             return false;
         },
@@ -374,18 +387,28 @@ function (
 
             let isStringProperty = !this._isComplexType();
 
-            // Skip if the new property value is identical to the current one
-            if ((value === null && this.value === null) ||
+            console.log("yyy isStringProperty", isStringProperty);
+
+            // Skip if the new property value is identical to the current one, and map was already initialized
+            if (this._map && ((value === null && this.value === null) ||
                 (isStringProperty && value === this.value) ||
-                (!isStringProperty && value && this.value && value["longitude"] === this.value["longitude"] && value["latitude"] === this.value["latitude"])) {
+                (!isStringProperty && value && this.value && value["longitude"] === this.value["longitude"] && value["latitude"] === this.value["latitude"]))) {
 
                 //this.log("Value has not changed");
+
+                console.log("yyy value not changed and map was already initialized", {
+                    newValue: value,
+                    currentValue: this.value,
+                    map: this._map
+                });
 
                 return;
             }
 
             // Update the widget (i.e. property) value
+            console.log("yyy value before", this.value);
             this._set("value", value);
+            console.log("yyy value after", this.value);
 
             const refreshValue = function () {
 
@@ -393,8 +416,16 @@ function (
                     hasCoordinates: this.hasCoordinates()
                 });
 
+                if (!this._map) {
+                    console.log("yyy no map, initializing...");
+                    this.initializeMap();
+                }
+
                 // If the value set is empty then clear the coordinates
                 if (!this.hasCoordinates()) {
+
+                    console.log("yyy does not have coordinates");
+
                     this.clearCoordinates();
 
                     // Set map location to default coordinates
@@ -405,12 +436,14 @@ function (
                     return;
                 }
 
+                console.log("yyy has coordinates");
+
                 let location, latitude, longitude;
 
                 if (this._isComplexType()) {
                     latitude = value.latitude;
                     longitude = value.longitude;
-                    
+
                 } else {
                     const coordinates = value.split(",");
                     latitude = parseFloat(coordinates[0]);
@@ -502,7 +535,10 @@ function (
         // Setup the Google Maps canvas
         initializeMap: function () {
 
-            console.log("yyy initializeMap", this);
+            console.log("yyy initializeMap", {
+                this: this,
+                hasCoordinates: this.hasCoordinates()
+            });
 
             //this.log(`Initializing map for property '${this.name}'...`);
 
@@ -576,6 +612,8 @@ function (
             // Allow user to change coordinates unless property is readonly
             if (!this.readOnly) {
 
+                console.log("yyy map writable, setting up events for changing places");
+
                 const that = this;
 
                 // Update map marker and coordinate textboxes when map is right-clicked
@@ -601,6 +639,7 @@ function (
                     that.setMapLocation(places[0].geometry.location, 15, true);
                 });
             } else {
+                console.log("yyy map is read-only");
                 // Disable search box and clear button
                 this.searchTextbox.set("disabled", true);
             }
