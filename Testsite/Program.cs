@@ -11,6 +11,6 @@ public class Program
     public static IHostBuilder CreateHostBuilder(string[] args) =>
         Host.CreateDefaultBuilder(args)
             .ConfigureCmsDefaults()
-            .ConfigureAppConfiguration(webBuilder => webBuilder.AddJsonFile("appSettings.user.json", optional: true))
+            .ConfigureAppConfiguration(webBuilder => webBuilder.AddJsonFile("appsettings.user.json", optional: true))
             .ConfigureWebHostDefaults(webBuilder => webBuilder.UseStartup<Startup>());
 }
