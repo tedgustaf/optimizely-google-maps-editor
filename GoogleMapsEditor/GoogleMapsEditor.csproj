@@ -7,7 +7,7 @@
 		<ImplicitUsings>disable</ImplicitUsings>
 		<OutputType>Library</OutputType>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-		<FileVersion>4.0.0.2</FileVersion>
+		<FileVersion>4.0.0.3</FileVersion>
 		<InformationalVersion>Optimizely CMS 12</InformationalVersion>
 		<Title>Google Maps Editor for Optimizely</Title>
 		<Description>Editor for setting coordinates using Google Maps.</Description>
@@ -31,7 +31,7 @@
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
 		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
 		<PackageReadmeFile>readme.md</PackageReadmeFile>
-		<PackageReleaseNotes>Fixed bug where marker would not be displayed for block instances inside IList&lt;TBlock&gt; properties.</PackageReleaseNotes>
+		<PackageReleaseNotes>Fixed bug where change event would not trigger when clearing coordinates for local block properties.</PackageReleaseNotes>
 		<PackageTags>Optimizely</PackageTags>
 	</PropertyGroup>
 
