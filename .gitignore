@@ -5,6 +5,7 @@
 
 # Windows-specific convenience scripts
 nuget-publish.bat
+git-remove-all-but-main.ps1
 
 # User-specific files
 *.rsuser
