@@ -20,7 +20,7 @@
 		<Product>$(Title)</Product>
 		<PackageDescription>$(Description)</PackageDescription>
 		<Version>$(FileVersion)</Version>
-		<PackageVersion>$(FileVersion)-preview</PackageVersion><!-- Append "-name-of-pre-release" to build prerelease version of packages, e.g. "$(FileVersion)-newfeature" -->
+		<PackageVersion>$(FileVersion)</PackageVersion><!-- Append "-name-of-pre-release" to build prerelease version of packages, e.g. "$(FileVersion)-newfeature" -->
 		<PackageId>$(AssemblyName)</PackageId>
 		<Authors>ted&amp;gustaf</Authors>
 		<Copyright>© Ted &amp; Gustaf AB. All rights reserved.</Copyright>

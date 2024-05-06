@@ -4,7 +4,7 @@
 
     "dijit/_TemplatedMixin", // Widgets will be based on an external template (string literal, external file, or URL request)
     "dijit/_WidgetsInTemplateMixin", // The widget will in itself contain additional widgets
-    "dijit/form/_FormValueWidget",
+    "dijit/form/_FormValueWidget", // Widget is used to modify a form value (i.e. content property value)
 
     "epi/shell/widget/dialog/LightWeight", // Used to display the help message
 
@@ -124,11 +124,9 @@ function (
         },
 
         /**
-         * Clears the coordinates, i.e. the property value (the clear button's click event is wired up through a 'data-dojo-attach-event' attribute in the HTML template).
+         * Clears the coordinates, i.e. the property value.
          */
         _clearCoordinates: function () {
-
-            //this.log("Clearing coordinates...");
 
             // Clear search box
             this.searchTextbox.set("value", '');
@@ -139,13 +137,13 @@ function (
                 this._marker = null;
             }
 
-            // Null the widget (i.e. property) value and trigger change event to notify the CMS (and possibly others) that the value has changed
-            // this.onFocus(); // Otherwise onChange event won't trigger correctly from the widget
-            // this._set("value", null);
+            // Clear the property value
             this.set("value", null);
-            //this.onChange(null);
         },
 
+        /**
+         * Wires up event handlers for UI elements, such as the "Clear coordinates" icon.
+         */
         _wireupIcons: function () {
             // Display help when help icon is clicked
             on(this.helpIcon, "click", function (e) {
