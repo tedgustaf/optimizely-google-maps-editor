@@ -11,25 +11,26 @@ Released under the MIT license (http://opensource.org/licenses/MIT)
 
 ### Getting started
 
-* Add the following to your ConfigureServices method in the Startup class:
-  services.AddGoogleMapsEditor(googleMapsApiKey)
+1. Add the following to your `ConfigureServices` method in the `Startup` class:
+  `services.AddGoogleMapsEditor(googleMapsApiKey)`
 
   > Note: You may specify additional settings, such as default coordinates and zoom level.
 
-* Add a string property with UIHint set to `"GoogleMaps"` (or use the `GoogleMapsEditorDescriptor.UIHint` constant), 
-  or a local block property of type `GoogleMapsCoordinates`. Properties of type `GoogleMapsCoordinates` are more
-  developer-friendly as they separate latitude and longitude and do not require a UIHint, but they currently
-  do not support culture-specific values.
+1. Add a `string` property with `[UIHint("GoogleMaps")]` (or use the `GoogleMapsEditorDescriptor.UIHint` constant 
+   for the UI hint name), or a local block property of type `GoogleMapsCoordinates`, to a content type.
+ 
+   Properties of type `GoogleMapsCoordinates` are more developer-friendly as they separate latitude and longitude 
+   and do not require a `UIHint` attribute, but they currently do not support culture-specific values.
 
-  **Example 1:**
+   **Example 1:**
   
-  ```
-  public virtual GoogleMapsCoordinates MyCoordinates { get; set; }
-  ```
+   ```
+   public virtual GoogleMapsCoordinates MyCoordinates { get; set; }
+   ```
 
-  **Example 2:**
+   **Example 2:**
   
-  ```
-  [UIHint(GoogleMapsEditorDescriptor.UIHint)]
-  public virtual string MyCoordinates { get; set; }
-  ```
+   ```
+   [UIHint(GoogleMapsEditorDescriptor.UIHint)]
+   public virtual string MyCoordinates { get; set; }
+   ```

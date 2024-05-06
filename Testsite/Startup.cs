@@ -38,7 +38,7 @@ public class Startup
             .AddEmbeddedLocalization<Startup>()
             .Configure<RazorPagesOptions>(x => x.RootDirectory = "/");
 
-        // Enable the Google Maps Editor add-on
+        // Enable the Google Maps Editor add-on if an API key has been specified
         if (_configuration["GoogleMaps:ApiKey"] is string apiKey && !string.IsNullOrWhiteSpace(apiKey))
         {
             services.AddGoogleMapsEditor(apiKey);
