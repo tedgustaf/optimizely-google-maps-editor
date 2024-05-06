@@ -1,6 +1,9 @@
-﻿using EPiServer.Core;
+﻿using EPiServer.Cms.Shell.UI.ObjectEditing.EditorDescriptors;
+using EPiServer.Core;
 using EPiServer.DataAnnotations;
+using EPiServer.Shell.ObjectEditing;
 using GoogleMapsEditor;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace Testsite;
@@ -16,4 +19,13 @@ public class SamplePageType : PageData
     [Display(GroupName = "Different tab")]
     [UIHint(GoogleMapsEditorDescriptor.UIHint)]
     public virtual string? MoreStringCoordinates { get; set; }
+
+    public virtual SampleBlockType? SampleBlock { get; set; }
+
+    public virtual ContentArea? ContentArea { get; set; }
+
+    public virtual IList<SampleBlockType>? SampleBlockList { get; set; }
+
+    [EditorDescriptor(EditorDescriptorType = typeof(CollectionEditorDescriptor<ListItem>))]
+    public virtual IList<ListItem>? ListItems { get; set; }
 }

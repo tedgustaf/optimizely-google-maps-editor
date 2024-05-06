@@ -2,7 +2,7 @@
   "profiles": {
     "Testsite": {
       "commandName": "Project",
-      "launchBrowser": true,
+      "launchBrowser": false,
       "applicationUrl": "https://localhost:44300/",
       "launchUrl": "",
       "environmentVariables": {

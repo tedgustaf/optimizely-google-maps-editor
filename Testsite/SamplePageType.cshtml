@@ -24,6 +24,21 @@
             <pre @Html.EditAttributes(x => x.CurrentContent.BlockCoordinates)><code>Latitude:  @Model.CurrentContent.BlockCoordinates?.Latitude
 Longitude: @Model.CurrentContent.BlockCoordinates?.Longitude</code></pre>
         </section>
+
+        <section>
+            <h2>Block list:</h2>
+            <pre @Html.EditAttributes(x => x.CurrentContent.SampleBlockList)><code></code></pre>
+        </section>
+
+        <section>
+            <h2>List items:</h2>
+            <pre @Html.EditAttributes(x => x.CurrentContent.ListItems)><code></code></pre>
+        </section>
+
+        <section>
+            <h2>Content area:</h2>
+            <pre @Html.EditAttributes(x => x.CurrentContent.ContentArea)><code></code></pre>
+        </section>
     </main>
 </body>
 </html>
