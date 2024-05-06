@@ -41,16 +41,22 @@ function (
         // Help dialog displayed when clicking the question mark icon
         _helpDialog: null,
 
+        _logPrefix: "[GoogleMapsEditor]",
+
         templateString: template,
 
         _setValueAttr: function (/*anything*/ newValue, /*Boolean?*/ priorityChange) {
             this.inherited(arguments);
 
-            this.textbox.value = newValue;
+            this.textbox.value = newValue || "";
 
             if (this._marker == null) // Initial load
             {
                 this._refreshMarkerLocation();
+            }
+
+            if (this._isComplexType()) {
+                this.onChange(newValue); // Otherwise onChange won't trigger correctly for complex property types
             }
         },
 
@@ -138,7 +144,7 @@ function (
             }
 
             // Clear the property value
-            this.set("value", null);
+            this._setCoordinatesValue(null);
         },
 
         /**
@@ -190,7 +196,7 @@ function (
                 return;
             }
 
-            const messageWithPrefix = `[GoogleMapsEditor] ${message}`;
+            const messageWithPrefix = `${this._logPrefix} ${message}`;
 
             if (data) {
                 console.log(messageWithPrefix, data);
@@ -331,30 +337,39 @@ function (
                 return;
             }
 
-            const longitude = location.lng(),
-                latitude = location.lat();
+            let value = null;
 
-            if (longitude === undefined || latitude === undefined) {
-                return;
+            if (!location) {
+                if (this._isComplexType()) {
+                    // Set "empty" value (still an object for local block properties)
+                    value = {
+                        "latitude": null,
+                        "longitude": null
+                    };
+                }
             }
+            else { // Has a location
+                const longitude = location.lng(),
+                      latitude = location.lat();
 
-            // Get the new value in the correct format
-            let value;
-            if (this._isComplexType()) {
-                value = {
-                    "latitude": parseFloat(latitude),
-                    "longitude": parseFloat(longitude)
-                };
-            } else {
-                value = latitude + "," + longitude;
+                if (longitude === undefined || latitude === undefined) {
+                    console.error(`${this._logPrefix} Unexpectedly missing longitude and/or latitude coordinate`);
+                    return;
+                }
+
+                // Get the new value in the correct format
+                if (this._isComplexType()) {
+                    value = {
+                        "latitude": parseFloat(latitude),
+                        "longitude": parseFloat(longitude)
+                    };
+                } else {
+                    value = latitude + "," + longitude;
+                }
             }
 
             // Set the widget (i.e. property) value and trigger change event to notify the CMS (and possibly others) that the value has changed
             this.set("value", value);
-
-            if (this._isComplexType()) {
-                this.onChange(value); // Otherwise onChange won't trigger correctly for complex property types
-            }
         },
 
         /**
