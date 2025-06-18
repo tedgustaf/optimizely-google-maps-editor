@@ -137,6 +137,9 @@ function (
             // Clear search box
             this.searchTextbox.set("value", '');
 
+            // Clear coordinate text boxes
+            this._setLongitudeAndLatitudeTextBox('', '');
+
             // Remove the map marker, if any
             if (this._marker) {
                 this._marker.setMap(null);
@@ -388,6 +391,8 @@ function (
             // Set the marker's position and coordinate textboxes, unless marker is ignored (for example when setting to default coordiantes)
             if (!skipMarker) {
 
+                this._setLongitudeAndLatitudeTextBox(location.lng(), location.lat());
+
                 if (!this._marker) { // No marker yet, create one
                     this._marker = new google.maps.Marker({
                         map: this._map
@@ -446,6 +451,18 @@ function (
             location = new google.maps.LatLng(latitude, longitude);
 
             this._setMapLocation(location, null, true, false);
+            this._setLongitudeAndLatitudeTextBox(longitude, latitude);
+        },
+
+        /**
+         * Sets the value of the longitude and latitude text boxes.
+         * @param {any} longitude
+         * @param {any} latitude
+         * @returns
+         */
+        _setLongitudeAndLatitudeTextBox: function (longitude, latitude) {
+            this.longitudeTextbox.set('value', longitude);
+            this.latitudeTextbox.set('value', latitude);
         },
 
         /**
