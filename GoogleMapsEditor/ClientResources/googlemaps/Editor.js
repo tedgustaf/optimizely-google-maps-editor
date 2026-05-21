@@ -54,7 +54,7 @@ function (
                 this._contentTypeGuid = newValue.contentTypeGuid;
             }
 
-            this.textbox.value = newValue || "";
+            this.textbox.value = typeof newValue === "string" ? newValue : "";
 
             if (this._marker == null) // Initial load
             {
