@@ -46,7 +46,11 @@ function (
         templateString: template,
 
         _setValueAttr: function (/*anything*/ newValue, /*Boolean?*/ priorityChange) {
-            this.inherited(arguments);
+
+            // Pass priorityChange=false so Dijit's _handleOnChange never fires onChange
+            // on programmatic CMS value sets (undefined == null in JS loose equality).
+            // onChange is fired explicitly in _setCoordinatesValue for user interactions.
+            this.inherited(arguments, [newValue, false]);
 
             // Cache the contentTypeGuid supplied by CMS so it can be included in
             // every value we post back (SystemTextBlockDataConverter requires it).
@@ -59,10 +63,6 @@ function (
             if (this._marker == null) // Initial load
             {
                 this._refreshMarkerLocation();
-            }
-
-            if (this._isComplexType()) {
-                this.onChange(newValue); // Otherwise onChange won't trigger correctly for complex property types
             }
         },
 
@@ -382,6 +382,8 @@ function (
 
             // Set the widget (i.e. property) value and trigger change event to notify the CMS (and possibly others) that the value has changed
             this.set("value", value);
+
+            this.onChange(value);
         },
 
         /**
