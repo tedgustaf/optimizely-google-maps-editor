@@ -4,33 +4,12 @@
 	<!-- Variables used in the MSBuild scripts -->
 	<PropertyGroup>
 		<PluginName>GoogleMapsEditor</PluginName>
-		<SolutionDir Condition="$(SolutionDir) == ''">$(MSBuildProjectDirectory)..\</SolutionDir>
+		<SolutionDir Condition="$(SolutionDir) == ''">$([MSBuild]::NormalizePath($(MSBuildProjectDirectory), '..'))/</SolutionDir>
 		<TmpOutDir>$(ProjectDir)bin\addon</TmpOutDir>
 		<BinDir>$(ProjectDir)bin</BinDir>
 		<ObjDir>$(ProjectDir)obj</ObjDir>
+		<TmpZipDir>$([MSBuild]::NormalizePath($(SolutionDir), 'tmp'))</TmpZipDir>
 	</PropertyGroup>
-	
-	<!-- Creates a ZIP file containing a specified set of files -->
-	<UsingTask TaskName="ZipDirectory" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
-		<ParameterGroup>
-			<InputPath ParameterType="System.String" Required="true" />
-			<OutputFileName ParameterType="System.String" Required="true" />
-			<OverwriteExistingFile ParameterType="System.Boolean" Required="false" />
-		</ParameterGroup>
-		<Task>
-			<Reference Include="System.IO.Compression.FileSystem" />
-			<Using Namespace="System.IO" />
-			<Using Namespace="System.IO.Compression" />
-			<Code Type="Fragment" Language="cs">
-				<![CDATA[        
-          if(this.OverwriteExistingFile) {
-            File.Delete(this.OutputFileName);
-          }
-          ZipFile.CreateFromDirectory(this.InputPath, this.OutputFileName);
-        ]]>
-			</Code>
-		</Task>
-	</UsingTask>
 
 	<Target Name="Clean" AfterTargets="AfterClean">
 		<Message Text="Cleaning project..." Importance="high" />
@@ -40,7 +19,7 @@
 
 	<!-- Include ZIP file, target (for copying ZIP to modules folder), and readme in package -->
 	<ItemGroup>
-		<None Include="$(SolutionDir)\tmp\$(PluginName).zip">
+		<None Include="$(TmpZipDir)\$(PluginName).zip">
 			<Pack>True</Pack>
 			<PackagePath>contentFiles\any\any\modules\_protected\GoogleMapsEditor</PackagePath>
 			<Visible>False</Visible>
@@ -50,7 +29,7 @@
 
 	<!-- Compiles files to include in release version of NuGet package, where add-on is packaged as a ZIP file -->
 	<!-- Run only once per build regardless of number of target frameworks -->
-	<Target Name="CompileReleaseAddonContent" BeforeTargets="DispatchToInnerBuilds">
+	<Target Name="CompileReleaseAddonContent" BeforeTargets="GenerateNuspec">
 
 		<Message Text="Compiling content for add-on zip file..." Importance="high" />
 
@@ -72,14 +51,14 @@
 		<!-- Update the module config with the version information -->
 		<XmlPoke XmlInputPath="$(TmpOutDir)\content\module.config" Query="/module/@clientResourceRelativePath" Value="$(FileVersion)" />
 
-		<!-- Create the Zip file -->
+		<!-- Create the Zip file using the built-in MSBuild ZipDirectory task (works on .NET Core MSBuild / Mac / Linux) -->
 		<Message Text="Creating add-on ZIP file..." Importance="high" />
 		
-		<MakeDir Directories="$(SolutionDir)\tmp" />
+		<MakeDir Directories="$(TmpZipDir)" />
 		
-		<ZipDirectory InputPath="$(TmpOutDir)\content" 
-					  OutputFileName="$(SolutionDir)\tmp\$(PluginName).zip" 
-					  OverwriteExistingFile="true" />
+		<ZipDirectory SourceDirectory="$(TmpOutDir)\content"
+		              DestinationFile="$(TmpZipDir)\$(PluginName).zip"
+		              Overwrite="true" />
 
 	</Target>
 

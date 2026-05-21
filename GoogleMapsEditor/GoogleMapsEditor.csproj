@@ -62,18 +62,22 @@
   </ItemGroup>
   <!-- Include the icon, license, readme files, and build targets in the NuGet package -->
   <ItemGroup>
-    <None Include="..\nuget-icon.png">
+    <None Include="../nuget-icon.png">
       <Visible>False</Visible>
       <Pack>True</Pack>
+      <PackagePath></PackagePath>
     </None>
-    <None Include="..\LICENSE">
+    <None Include="../LICENSE">
       <Pack>True</Pack>
+      <PackagePath></PackagePath>
     </None>
     <None Include="readme.md">
       <Pack>True</Pack>
+      <PackagePath></PackagePath>
     </None>
     <None Include="readme.txt">
       <Pack>True</Pack>
+      <PackagePath></PackagePath>
     </None>
     <None Include="GoogleMapsEditor.targets">
       <Pack>True</Pack>
