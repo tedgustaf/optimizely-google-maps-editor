@@ -48,6 +48,12 @@ function (
         _setValueAttr: function (/*anything*/ newValue, /*Boolean?*/ priorityChange) {
             this.inherited(arguments);
 
+            // Cache the contentTypeGuid supplied by CMS so it can be included in
+            // every value we post back (SystemTextBlockDataConverter requires it).
+            if (newValue && typeof newValue === "object" && newValue.contentTypeGuid) {
+                this._contentTypeGuid = newValue.contentTypeGuid;
+            }
+
             this.textbox.value = newValue || "";
 
             if (this._marker == null) // Initial load
@@ -346,6 +352,9 @@ function (
                         "latitude": null,
                         "longitude": null
                     };
+                    if (this._contentTypeGuid) {
+                        value.contentTypeGuid = this._contentTypeGuid;
+                    }
                 }
             }
             else { // Has a location
@@ -363,6 +372,9 @@ function (
                         "latitude": parseFloat(latitude),
                         "longitude": parseFloat(longitude)
                     };
+                    if (this._contentTypeGuid) {
+                        value.contentTypeGuid = this._contentTypeGuid;
+                    }
                 } else {
                     value = latitude + "," + longitude;
                 }
