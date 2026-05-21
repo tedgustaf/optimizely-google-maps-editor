@@ -1,5 +1,5 @@
-using EPiServer.Cms.Shell;
 using EPiServer.Cms.UI.AspNetIdentity;
+using EPiServer.DependencyInjection;
 using EPiServer.Framework.Hosting;
 using EPiServer.Framework.Web.Resources;
 using EPiServer.Scheduler;
@@ -46,11 +46,11 @@ public class Startup
             if (_webHostEnvironment.IsDevelopment())
             {
                 // Configure site for add-ondevelopment, meaning files for the Google Maps Editor add-on will be loaded directly from its project folder.
-                var uiSolutionFolder = Path.Combine(_webHostEnvironment.ContentRootPath, @"..\");
+                var uiSolutionFolder = Path.Combine(_webHostEnvironment.ContentRootPath, "..");
 
                 services.Configure<CompositeFileProviderOptions>(c =>
                 {
-                    c.BasePathFileProviders.Add(new MappingPhysicalFileProvider($"/EPiServer/GoogleMapsEditor", string.Empty, Path.Combine(uiSolutionFolder, "GoogleMapsEditor")));
+                    c.BasePathFileProviders.Add(new MappingPhysicalFileProvider($"/Optimizely/GoogleMapsEditor", string.Empty, Path.Combine(uiSolutionFolder, "GoogleMapsEditor")));
                 });
             }
         }

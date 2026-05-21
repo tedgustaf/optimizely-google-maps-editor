@@ -16,7 +16,7 @@ public class SamplePageType : PageData
 
     public virtual GoogleMapsCoordinates? BlockCoordinates { get; set; }
 
-    [Display(GroupName = "Different tab", Description = "Required coordinates.")]
+    [Display(GroupName = "DifferentTab", Description = "Required coordinates.")]
     [Required]
     [UIHint(GoogleMapsEditorDescriptor.UIHint)]
     public virtual string? MoreStringCoordinates { get; set; }
