@@ -29,7 +29,7 @@
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
     <PackageReadmeFile>readme.md</PackageReadmeFile>
-    <PackageReleaseNotes>Fixed bug related to required properties.</PackageReleaseNotes>
+    <PackageReleaseNotes>Compatibility with CMS 13 and .NET 10.</PackageReleaseNotes>
     <PackageTags>Optimizely</PackageTags>
   </PropertyGroup>
   <!-- Build NuGet package for release builds -->

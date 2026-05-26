@@ -1,14 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.0.31919.166
+# Visual Studio Version 18
+VisualStudioVersion = 18.0.11217.181 d18.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Testsite", "Testsite\Testsite.csproj", "{E1BF4F42-6CD6-4352-947D-58CE7730EB67}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{81ABB65C-D8EA-4562-B232-2DA1A26E39B3}"
 	ProjectSection(SolutionItems) = preProject
 		.gitignore = .gitignore
-		create-db.bat = create-db.bat
 		LICENSE = LICENSE
 		README.md = README.md
 	EndProjectSection
