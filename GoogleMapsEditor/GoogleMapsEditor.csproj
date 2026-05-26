@@ -1,12 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <Import Condition="'$(Configuration)' == 'Release'" Project="BuildAddonZipFile.proj" />
   <PropertyGroup>
-    <TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
+    <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>disable</ImplicitUsings>
     <OutputType>Library</OutputType>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <FileVersion>4.0.0.4</FileVersion>
-    <InformationalVersion>Optimizely CMS 12</InformationalVersion>
+    <FileVersion>5.0.0</FileVersion>
+    <InformationalVersion>Optimizely CMS 13</InformationalVersion>
     <Title>Google Maps Editor for Optimizely</Title>
     <Description>Editor for setting coordinates using Google Maps.</Description>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
@@ -57,17 +57,17 @@
     <None Include="ClientResources\googlemaps\WidgetTemplate.html" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="EPiServer.CMS.UI.Core" Version="[12.10.0,13)" />
-    <PackageReference Include="EPiServer.Framework" Version="[12.8.0,13)" />
+    <PackageReference Include="EPiServer.CMS.UI.Core" Version="[13.0.0,14)" />
+    <PackageReference Include="EPiServer.Framework" Version="[13.0.0,14)" />
   </ItemGroup>
   <!-- Include the icon, license, readme files, and build targets in the NuGet package -->
   <ItemGroup>
-    <None Include="..\nuget-icon.png">
+    <None Include="../nuget-icon.png">
       <Visible>False</Visible>
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
-    <None Include="..\LICENSE">
+    <None Include="../LICENSE">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
@@ -81,15 +81,7 @@
     </None>
     <None Include="GoogleMapsEditor.targets">
       <Pack>True</Pack>
-      <PackagePath>build\net6.0</PackagePath>
-    </None>
-    <None Include="GoogleMapsEditor.targets">
-      <Pack>True</Pack>
-      <PackagePath>build\net7.0</PackagePath>
-    </None>
-    <None Include="GoogleMapsEditor.targets">
-      <Pack>True</Pack>
-      <PackagePath>build\net8.0</PackagePath>
+      <PackagePath>build\net10.0</PackagePath>
     </None>
   </ItemGroup>
   <ItemGroup>

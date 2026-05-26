@@ -12,7 +12,7 @@ The website project was set up using the **Optimizely CMS empty** Visual Studio 
 1. Create an empty CMS database and update `appsettings.json` for the `Testsite` project (or run `create-db.bat` in the solution folder if you're using `LocalDB`) 
 1. Add a Google Maps API key to `appsettings.json` (or `appsettings.user.json`) for the `Testsite` project
 1. Start `Testsite` project and browse to https://localhost:44300/ which will prompt you to create an admin user
-1. Access the Optimizely UI through: https://localhost:44300/episerver/cms using the credentials of the admin user
+1. Access the Optimizely UI through: https://localhost:44300/optimizely/cms using the credentials of the admin user
 1. Create a new page of type `SamplePageType`
 1. Configure a site in Optimizely
 1. Test the Google Maps editor

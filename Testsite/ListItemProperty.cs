@@ -1,9 +1,9 @@
 ﻿using EPiServer.Core;
-using EPiServer.PlugIn;
+using EPiServer.DataAnnotations;
 
 namespace Testsite;
 
-[PropertyDefinitionTypePlugIn]
+[PropertyDefinitionType]
 public class ListItemProperty : PropertyList<ListItem>
 {
 
